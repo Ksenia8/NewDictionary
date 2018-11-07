@@ -15,6 +15,9 @@ window.addEventListener("load", function () {
     let totalQuestionsElem = document.querySelector("#total_questions");
     let getErrorsBtn = document.querySelector("#getErrors");
 
+    let currentErrorElem = document.querySelector("#current_error");
+    let totalError = document.querySelector("#total_error")
+
     //тут будут слова с буквами в правильном порядке
     let dictionary = [];
     // а тут с перемешанными буквами
@@ -49,7 +52,7 @@ window.addEventListener("load", function () {
         //отправка запроса
         //создаем объект и указываем адрес с которого хотим получить ответ
         let req = new XMLHttpRequest();
-        req.open("GET", "http://http://localhost:5500/getDictionary?limit="+limitQuestions);
+        req.open("GET", "http://localhost:5500/getDictionary?limit="+limitQuestions);
         //отправляем запрос на сервер
         req.send();
 
@@ -109,14 +112,20 @@ window.addEventListener("load", function () {
             		// если мы дошли до последнего вопроса
             		if (currentQuestion >= limitQuestions) {
             			letters.innerHTML = "<div class='alert alert-success'>Вы успешно справились со всеми заданиями!</div>";
-            			alert("Всего ошибок: " + totalErrors);
+
+            			// alert("Всего ошибок: " + totalErrors);
                         saveStatistics();
 					} else {
                         displayCurrentQuestion();
 					}
 				}
 			} else {
-            	currentQuestionErrors++;
+
+                currentErrorElem.innerHTML = currentQuestionErrors+1;
+                totalError.innerHTML = totalErrors+1;
+
+
+                currentQuestionErrors++;
             	totalErrors++;
 
                 btn.classList.remove("btn-primary");

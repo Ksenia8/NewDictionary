@@ -67,10 +67,10 @@ app.get("/getDictionary", (req,res)=> {
 
     for (let word of part){
         //перемешиваем символы
-        let randWord = shuffle(word.split(""));
-
+        let wordArr = word.split("");
+        shuffle(wordArr);
         //сохраняем в массив
-        randomLetters.push(randWord);
+        randomLetters.push(wordArr);
     }
     // сформируем ответ сервера в виде объекта
     let dict = {
