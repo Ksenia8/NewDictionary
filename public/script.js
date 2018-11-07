@@ -1,7 +1,5 @@
 "use strict";
 
-
-
 //shuffle(dictionary);
 
 window.addEventListener("load", function () {
@@ -17,12 +15,19 @@ window.addEventListener("load", function () {
     let totalQuestionsElem = document.querySelector("#total_questions");
     let getErrorsBtn = document.querySelector("#getErrors");
 
+    //тут будут слова с буквами в правильном порядке
+    let dictionary = [];
+    // а тут с перемешанными буквами
+    let randDictionary = [];
+
     totalQuestionsElem.innerHTML = limitQuestions;
+
 
     // функция для показа слова, разбитого на буквы в кнопках
     let displayCurrentQuestion = () => {
-    	let word = dictionary[currentQuestion];
-    	let wordArr = word.split("");
+
+        let word = dictionary[currentQuestion];
+    	let wordArr = randDictionary[currentQuestion];
         //shuffle(wordArr);
         currentQuestionErrors = 0;
 
@@ -38,7 +43,40 @@ window.addEventListener("load", function () {
         answerContainer.innerHTML = "";
 	};
 
-    let saveStatistics = () => {
+    //функция запрашивает словарь на сервере и вызывает отображение первого вопроса
+    let startTest = () => {
+        //ЗАПРОС СЛОВАРЯ
+        //отправка запроса
+        //создаем объект и указываем адрес с которого хотим получить ответ
+        let req = new XMLHttpRequest();
+        req.open("GET", "http://http://localhost:5500/getDictionary?limit="+limitQuestions);
+        //отправляем запрос на сервер
+        req.send();
+
+        //ждем пока загрузит ответ
+        req.onload = function(){
+            //2. Когда словарь загружен
+            //проверяем код ответа
+            if (req.status === 200) {
+                // Сохраняем словарь в переменнsые
+                //заполняем словами, которые пришли с сервера
+                //раскодируем данные в формате JSON
+                let dict = JSON.parse(req.responseText);
+
+                dictionary = dict.answer;
+                randDictionary = dict.question;
+
+                console.log(dictionary);
+                console.log(randDictionary);
+
+                // 3. Показ первого вопроса
+                // вызов отображения первого вопроса
+                displayCurrentQuestion();
+            }
+        };
+    };
+
+    let saveStatistics = ()=> {
     	const req = new XMLHttpRequest();
     	req.open("POST", "http://localhost:5500/save?errors=" + totalErrors);
     	req.send();
@@ -46,18 +84,8 @@ window.addEventListener("load", function () {
     	req.onerror = () => console.log("Ошибка при отправке запроса на сохранение");
 	};
 
-    // этот код лучше поместить в функцию
-	// const req = new XMLHttpRequest();
-    // req.open("GET", ".....?limit=" + limitQuestions);
-    // req.send();
-    // req.onload = () => {
-	    // лучше всего использовать JSON
-    	// dictionary = req.responseText;
-    	// // в responseText должен быть список слов
-    	// // код для запуска игры (в т.ч. для показа первого вопроса)
-	// };
-
-    displayCurrentQuestion();
+    // 1. сначала запросим словарь на сервере
+    startTest();
 
     letters.addEventListener("click", function (event) {
         if (event.target.tagName === "BUTTON") {
